@@ -1,3 +1,11 @@
-python==3.8.5
-torch==1.10.0
-numpy==1.21.0
+python==3.11.0rc2
+torch==2.5.1+cu121
+numpy==2.2.5
+torch_geometric==2.6.1
+pandas==2.2.3
+matplotlib==3.10.1
+logging==0.5.1.2
+tqdm==4.67.1
+sklearn==1.6.1
+json==2.0.9
+networkx==3.4.2
