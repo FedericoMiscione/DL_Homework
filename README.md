@@ -2,7 +2,7 @@
 
 ## Idea
 
-Exploring different hyperparameters of the provided models. In particular, the final version is performed using these parameters:
+Fine tuning different hyperparameters of the provided models. In particular, the final version is performed using these parameters:
 - gnn_type='gin'
 - num_class=6
 - num_layer=5
