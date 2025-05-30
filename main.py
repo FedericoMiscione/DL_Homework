@@ -1,7 +1,11 @@
 import argparse
 import torch
 from torch_geometric.loader import DataLoader
-from torch_geometric.nn import GCNConv, global_mean_pool, ResGatedGraphConv
+from torch_geometric.nn import GCNConv, global_mean_pool
+
+import sys
+sys.path.append('source')
+
 from loadData import GraphDataset
 import os
 import pandas as pd
@@ -11,10 +15,7 @@ from torch_geometric.nn import GCNConv, global_mean_pool, BatchNorm, global_max_
 from torch.utils.data import random_split
 import gc
 
-import methods
-
 import conv
-
 import logging
 import kaggle_models as km
 
@@ -103,7 +104,7 @@ def main(args):
     global model, optimizer, criterion, device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    script_dir = r"C:\Users\fede6\Desktop\DeepHW"
+    script_dir = os.getcwd() # r"C:\Users\fede6\Desktop\DeepHW"
 
     # Parameters for the GCN model
     input_dim = 300  # Example input feature dimension (you can adjust this)
@@ -116,12 +117,12 @@ def main(args):
         print(f"Loading models for ensemble on dataset {dataset}...", end=" ")
         # Initialize the model, optimizer, and loss criterion
         model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
-        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_A_best_1.pth")
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "ensembled_models", "model_A_best_1.pth")
         checkpoint = torch.load(checkpoint_fn)
         model1.load_state_dict(checkpoint['model_state_dict'])
         
         model2 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
-        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_A_best_2.pth")
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "ensembled_models", "model_A_best_2.pth")
         checkpoint = torch.load(checkpoint_fn)
         model2.load_state_dict(checkpoint['model_state_dict'])
         
@@ -134,12 +135,12 @@ def main(args):
         print(f"Loading models for ensemble on dataset {dataset}...", end=" ")
         # Initialize the model, optimizer, and loss criterion
         model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
-        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_B_best_1.pth")
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "ensembled_models", "model_B_best_1.pth")
         checkpoint = torch.load(checkpoint_fn)
         model1.load_state_dict(checkpoint['model_state_dict'])
         
         model2 = conv.GNN(gnn_type='gine', num_class=6, num_layer=5, emb_dim=128, drop_ratio=0.5, virtual_node=False, residual=True, graph_pooling='attention').to(device)
-        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_B_best_2.pth")
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "ensembled_models", "model_B_best_2.pth")
         checkpoint = torch.load(checkpoint_fn)
         model2.load_state_dict(checkpoint['model_state_dict'])
         
@@ -152,12 +153,12 @@ def main(args):
         print(f"Loading models for ensemble on dataset {dataset}...", end=" ")
         # Initialize the model, optimizer, and loss criterion
         model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
-        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_C_best_1.pth")
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "ensembled_models", "model_C_best_1.pth")
         checkpoint = torch.load(checkpoint_fn)
         model1.load_state_dict(checkpoint['model_state_dict'])
         
         model2 = conv.GNN(gnn_type='gine', num_class=6, num_layer=5, emb_dim=128, drop_ratio=0.5, virtual_node=False, residual=True, graph_pooling='attention').to(device)
-        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_C_best_2.pth")
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "ensembled_models", "model_C_best_2.pth")
         checkpoint = torch.load(checkpoint_fn)
         model2.load_state_dict(checkpoint['model_state_dict'])
         
@@ -170,12 +171,12 @@ def main(args):
         print(f"Loading models for ensemble on dataset {dataset}...", end=" ")
         # Initialize the model, optimizer, and loss criterion
         model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
-        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best_1.pth")
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "ensembled_models", "model_D_best_1.pth")
         checkpoint = torch.load(checkpoint_fn)
         model1.load_state_dict(checkpoint['model_state_dict'])
         
         model2 = conv.GNN(gnn_type='gine', num_class=6, num_layer=5, emb_dim=128, drop_ratio=0.5, virtual_node=False, residual=True, graph_pooling='attention').to(device)
-        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best_2.pth")
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "ensembled_models", "model_D_best_2.pth")
         checkpoint = torch.load(checkpoint_fn)
         model2.load_state_dict(checkpoint['model_state_dict'])
         
