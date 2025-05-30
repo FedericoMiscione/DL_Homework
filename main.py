@@ -107,25 +107,85 @@ def main(args):
 
     # Parameters for the GCN model
     input_dim = 300  # Example input feature dimension (you can adjust this)
-    hidden_dim = 150 
-    output_dim = 6   # Number of classes
+    hidden_dim = 150
+    output_dim = 6  # Number of classes
 
-    # Initialize the model, optimizer, and loss criterion
-    model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
-    checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best_1.pth")
-    checkpoint = torch.load(checkpoint_fn)
-    model1.load_state_dict(checkpoint['model_state_dict'])
+    dataset = args.test_path.split("\\")[-2]
     
-    # model = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
-    model2 = conv.GNN(gnn_type='gine', num_class=6, num_layer=5, emb_dim=128, drop_ratio=0.5, virtual_node=False, residual=True, graph_pooling='attention').to(device)
-    checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best_2.pth")
-    checkpoint = torch.load(checkpoint_fn)
-    model2.load_state_dict(checkpoint['model_state_dict'])
-    
-    model = km.GNNEnsemble([model1, model2])
-    checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best.pth")
-    checkpoint = torch.load(checkpoint_fn)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    if dataset == 'A':
+        print(f"Loading models for ensemble on dataset {dataset}...", end=" ")
+        # Initialize the model, optimizer, and loss criterion
+        model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_A_best_1.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model1.load_state_dict(checkpoint['model_state_dict'])
+        
+        model2 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_A_best_2.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model2.load_state_dict(checkpoint['model_state_dict'])
+        
+        model = km.GNNEnsemble([model1, model2])
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_A_best.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model.load_state_dict(checkpoint['model_state_dict']) 
+        print("Done") 
+    elif dataset == 'B':
+        print(f"Loading models for ensemble on dataset {dataset}...", end=" ")
+        # Initialize the model, optimizer, and loss criterion
+        model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_B_best_1.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model1.load_state_dict(checkpoint['model_state_dict'])
+        
+        model2 = conv.GNN(gnn_type='gine', num_class=6, num_layer=5, emb_dim=128, drop_ratio=0.5, virtual_node=False, residual=True, graph_pooling='attention').to(device)
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_B_best_2.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model2.load_state_dict(checkpoint['model_state_dict'])
+        
+        model = km.GNNEnsemble([model1, model2])
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_B_best.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model.load_state_dict(checkpoint['model_state_dict']) 
+        print("Done")       
+    elif dataset == 'C':
+        print(f"Loading models for ensemble on dataset {dataset}...", end=" ")
+        # Initialize the model, optimizer, and loss criterion
+        model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_C_best_1.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model1.load_state_dict(checkpoint['model_state_dict'])
+        
+        model2 = conv.GNN(gnn_type='gine', num_class=6, num_layer=5, emb_dim=128, drop_ratio=0.5, virtual_node=False, residual=True, graph_pooling='attention').to(device)
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_C_best_2.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model2.load_state_dict(checkpoint['model_state_dict'])
+        
+        model = km.GNNEnsemble([model1, model2])
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_C_best.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        print("Done")
+    elif dataset == 'D':
+        print(f"Loading models for ensemble on dataset {dataset}...", end=" ")
+        # Initialize the model, optimizer, and loss criterion
+        model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best_1.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model1.load_state_dict(checkpoint['model_state_dict'])
+        
+        model2 = conv.GNN(gnn_type='gine', num_class=6, num_layer=5, emb_dim=128, drop_ratio=0.5, virtual_node=False, residual=True, graph_pooling='attention').to(device)
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best_2.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model2.load_state_dict(checkpoint['model_state_dict'])
+        
+        model = km.GNNEnsemble([model1, model2])
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        print("Done")
+    else:
+        raise ValueError("Invalid dataset!")
     
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-2, weight_decay=1e-10)
     criterion = NoisyCrossEntropyLoss() # torch.nn.CrossEntropyLoss()
