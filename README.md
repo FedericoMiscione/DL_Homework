@@ -71,3 +71,8 @@ In particular, the ensembles are composed by:
 ## References
 
 https://pytorch-geometric.readthedocs.io/en/2.6.0/generated/torch_geometric.nn.conv.GINEConv.html
+
+---
+
+We had to recreate logs of some models on datasets due to some issues with git, since at some point those resulting currupted after the commit on the repository.
+The new logs have been regenerated using the metrics contained in the best model's checkpoint for each epoch. 
