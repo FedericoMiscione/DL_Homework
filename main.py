@@ -126,10 +126,15 @@ def main(args):
         checkpoint = torch.load(checkpoint_fn)
         model2.load_state_dict(checkpoint['model_state_dict'])
         
-        model = km.GNNEnsemble([model1, model2])
+        model3 = conv.GNN(gnn_type='gine', num_class=6, num_layer=5, emb_dim=128, drop_ratio=0.5, virtual_node=False, residual=True, graph_pooling='attention').to(device)
+        checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_A_best_3.pth")
+        checkpoint = torch.load(checkpoint_fn)
+        model3.load_state_dict(checkpoint['model_state_dict'])
+        
+        model = km.GNNEnsemble([model1, model2, model3])
         checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_A_best.pth")
         checkpoint = torch.load(checkpoint_fn)
-        model.load_state_dict(checkpoint['model_state_dict']) 
+        model.load_state_dict(checkpoint['model_state_dict'])  
         print("Done") 
     elif dataset == 'B':
         print(f"Loading models for ensemble on dataset {dataset}...", end=" ")
