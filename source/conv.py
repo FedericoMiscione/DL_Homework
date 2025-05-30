@@ -7,6 +7,32 @@ from torch_geometric.nn.inits import uniform
 
 import math
 
+
+class GINEConv(MessagePassing):
+    def __init__(self, emb_dim):
+        super(GINEConv, self).__init__(aggr="add")
+
+        self.mlp = torch.nn.Sequential(
+            torch.nn.Linear(emb_dim, 2*emb_dim),
+            torch.nn.BatchNorm1d(2*emb_dim),
+            torch.nn.ReLU(),
+            torch.nn.Linear(2*emb_dim, emb_dim)
+        )
+        self.eps = torch.nn.Parameter(torch.Tensor([0]))
+        self.edge_encoder = torch.nn.Linear(7, emb_dim)
+
+    def forward(self, x, edge_index, edge_attr):
+        edge_embedding = self.edge_encoder(edge_attr)
+        out = self.mlp((1 + self.eps) * x + self.propagate(edge_index, x=x, edge_attr=edge_embedding))
+        return out
+
+    def message(self, x_j, edge_attr):
+        return F.relu(x_j + edge_attr)
+
+    def update(self, aggr_out):
+        return aggr_out
+
+
 ### GIN convolution along the graph structure
 class GINConv(MessagePassing):
     def __init__(self, emb_dim):
@@ -97,10 +123,12 @@ class GNN_node(torch.nn.Module):
                 self.convs.append(GINConv(emb_dim))
             elif gnn_type == 'gcn':
                 self.convs.append(GCNConv(emb_dim))
-            elif gnn_type == 'gine':
+            elif gnn_type == 'gine':  # <--- Add this
                 self.convs.append(GINEConv(emb_dim))
             else:
                 raise ValueError('Undefined GNN type called {}'.format(gnn_type))
+
+            self.batch_norms.append(torch.nn.BatchNorm1d(emb_dim))
 
     def forward(self, batched_data):
         x, edge_index, edge_attr, batch = batched_data.x, batched_data.edge_index, batched_data.edge_attr, batched_data.batch
@@ -268,7 +296,7 @@ class GNN(torch.nn.Module):
         elif self.graph_pooling == "max":
             self.pool = global_max_pool
         elif self.graph_pooling == "attention":
-                self.pool = AttentionalAggregation(gate_nn = torch.nn.Sequential(torch.nn.Linear(emb_dim, 2*emb_dim), torch.nn.BatchNorm1d(2*emb_dim), torch.nn.ReLU(), torch.nn.Linear(2*emb_dim, 1)))
+            self.pool = AttentionalAggregation(gate_nn = torch.nn.Sequential(torch.nn.Linear(emb_dim, 2*emb_dim), torch.nn.BatchNorm1d(2*emb_dim), torch.nn.ReLU(), torch.nn.Linear(2*emb_dim, 1)))
         elif self.graph_pooling == "set2set":
             self.pool = Set2Set(emb_dim, processing_steps = 2)
         else:
@@ -277,45 +305,9 @@ class GNN(torch.nn.Module):
         if graph_pooling == "set2set":
             self.graph_pred_linear = torch.nn.Linear(2*self.emb_dim, self.num_class)
         else:
-            self.graph_pred_linear = torch.nn.Sequential(torch.nn.Linear(self.emb_dim, self.num_class))
+            self.graph_pred_linear = torch.nn.Linear(self.emb_dim, self.num_class)
 
     def forward(self, batched_data):
         h_node = self.gnn_node(batched_data)
         h_graph = self.pool(h_node, batched_data.batch)
         return self.graph_pred_linear(h_graph)
-    
-class GNNEnsemble(torch.nn.Module):
-    def __init__(self, model1, model2):
-        super(GNNEnsemble, self).__init__()
-        self.model1 = model1
-        self.model2 = model2
-
-    def forward(self, batched_data):
-        out1 = self.model1(batched_data)  
-        out2 = self.model2(batched_data)  
-        out = (out1 + out2) / 2
-        return out
-
-class GINEConv(MessagePassing):
-    def __init__(self, emb_dim):
-        super(GINEConv, self).__init__(aggr="add")
-
-        self.mlp = torch.nn.Sequential(
-            torch.nn.Linear(emb_dim, 2*emb_dim),
-            torch.nn.BatchNorm1d(2*emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2*emb_dim, emb_dim)
-        )
-        self.eps = torch.nn.Parameter(torch.Tensor([0]))
-        self.edge_encoder = torch.nn.Linear(7, emb_dim)
-
-    def forward(self, x, edge_index, edge_attr):
-        edge_embedding = self.edge_encoder(edge_attr)
-        out = self.mlp((1 + self.eps) * x + self.propagate(edge_index, x=x, edge_attr=edge_embedding))
-        return out
-
-    def message(self, x_j, edge_attr):
-        return F.relu(x_j + edge_attr)
-
-    def update(self, aggr_out):
-        return aggr_out
