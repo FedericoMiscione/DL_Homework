@@ -45,8 +45,6 @@ the following parameters:
 - patience = 4.
 - min_lr = 1e-4.
 
-[Scrivere numero epoche di training]
-
 Fine tuning different hyperparameters of the provided models. In particular, the final version is performed using these parameters:
 - gnn_type='gine'
 - num_class=6
@@ -65,6 +63,8 @@ The ensemble improved the generalization power, and so also the performance, obt
 In particular, the ensembles are composed by:
 - 2 GIN-based models trained with different weight decay (model_A_best_1 on 1e-10 and model_best_A_2 on 1e-4) on the dataset A;
 - 1 GIN-based model and 1 GINEConv-based model on the dataset B.
+- 1 GIN-based model and 1 GINEConv-based model on the dataset C.
+- 1 GIN-based model and 1 GINEConv-based model on the dataset D.
 
 [Specificare da dove prendere i modelli nelle direcotry per runnare]
 

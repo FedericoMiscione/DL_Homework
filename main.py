@@ -107,8 +107,8 @@ def main(args):
 
     # Parameters for the GCN model
     input_dim = 300  # Example input feature dimension (you can adjust this)
-    hidden_dim = 150
-    output_dim = 6  # Number of classes
+    hidden_dim = 150 
+    output_dim = 6   # Number of classes
 
     # Initialize the model, optimizer, and loss criterion
     model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
