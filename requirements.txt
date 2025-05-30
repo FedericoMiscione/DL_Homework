@@ -9,3 +9,7 @@ tqdm==4.67.1
 sklearn==1.6.1
 json==2.0.9
 networkx==3.4.2
+
+=== Our libraries ===
+kaggle_models
+conv

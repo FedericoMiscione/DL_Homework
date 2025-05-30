@@ -13,9 +13,10 @@ import gc
 
 import methods
 
+import conv
+
 import logging
-import training
-import kaggle_models as kmod
+import kaggle_models as km
 
 from tqdm import tqdm
 
@@ -102,14 +103,31 @@ def main(args):
     global model, optimizer, criterion, device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+    script_dir = r"C:\Users\fede6\Desktop\DeepHW"
+
     # Parameters for the GCN model
     input_dim = 300  # Example input feature dimension (you can adjust this)
-    hidden_dim = 300
+    hidden_dim = 150
     output_dim = 6  # Number of classes
 
     # Initialize the model, optimizer, and loss criterion
-    model = kmod.GNN(num_class=6, num_layer=30, emb_dim=50, virtual_node=True, residual=True, drop_ratio=0.5, graph_pooling='attention')
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-20)
+    model1 = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
+    checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best_1.pth")
+    checkpoint = torch.load(checkpoint_fn)
+    model1.load_state_dict(checkpoint['model_state_dict'])
+    
+    # model = km.GNN(gnn_type='gin', num_class=6, num_layer=5, emb_dim=150, drop_ratio=0.5, virtual_node=True, residual=True, graph_pooling='attention').to(device)
+    model2 = conv.GNN(gnn_type='gine', num_class=6, num_layer=5, emb_dim=128, drop_ratio=0.5, virtual_node=False, residual=True, graph_pooling='attention').to(device)
+    checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best_2.pth")
+    checkpoint = torch.load(checkpoint_fn)
+    model2.load_state_dict(checkpoint['model_state_dict'])
+    
+    model = km.GNNEnsemble([model1, model2])
+    checkpoint_fn = os.path.join(script_dir, "checkpoints", "model_D_best.pth")
+    checkpoint = torch.load(checkpoint_fn)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-2, weight_decay=1e-10)
     criterion = NoisyCrossEntropyLoss() # torch.nn.CrossEntropyLoss()
 
     # Prepare test dataset and loader
@@ -135,7 +153,7 @@ def main(args):
         log_file = os.path.join(logs_folder, "training.log")
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
         logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
-        logging.getLogger().addHandler(logging.StreamHandler())
+        # logging.getLogger().addHandler(logging.StreamHandler())
 
         checkpoint_path = os.path.join(script_dir, "checkpoints", f"A\model_{test_dir_name}")
         checkpoints_folder = os.path.join(script_dir, "checkpoints", test_dir_name)
@@ -144,25 +162,24 @@ def main(args):
         # Training loop
         num_epochs = 50
         for epoch in range(num_epochs):
-            train_loss, train_acc = training.train(train_loader, model, optimizer, criterion, device, save_checkpoints=True, checkpoint_path=checkpoint_path, current_epoch=epoch)
-            val_loss, val_acc, val_f1 = training.evaluate(val_loader, model, device, calculate_accuracy=True)
+            train_loss, train_acc = train(train_loader, model, optimizer, criterion, device, save_checkpoints=True, checkpoint_path=checkpoint_path, current_epoch=epoch)
+            val_loss, val_acc, val_f1 = evaluate(val_loader, calculate_accuracy=False)
             print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}| Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}, Val F1: {val_f1:.4f}")
             gc.collect()
 
     # Evaluate and save test predictions
-    predictions = training.evaluate(test_loader, model, device, calculate_accuracy=False)
+    predictions = evaluate(test_loader, calculate_accuracy=False)
     test_graph_ids = list(range(len(predictions)))  # Generate IDs for graphs
 
     # Save predictions to CSV
     test_dir_name = os.path.dirname(args.test_path).split(os.sep)[-1]
     output_csv_path = os.path.join(f"testset_{test_dir_name}.csv")
     output_df = pd.DataFrame({
-        "GraphID": test_graph_ids,
-        "Class": predictions
+        "id": test_graph_ids,
+        "pred": predictions
     })
     output_df.to_csv(output_csv_path, index=False)
     print(f"Test predictions saved to {output_csv_path}")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train and evaluate a GCN model on graph datasets.")

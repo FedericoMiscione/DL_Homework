@@ -285,15 +285,13 @@ class GNN(torch.nn.Module):
         return self.graph_pred_linear(h_graph)
     
 class GNNEnsemble(torch.nn.Module):
-    def __init__(self, model1, model2):
+    def __init__(self, models):
         super(GNNEnsemble, self).__init__()
-        self.model1 = model1
-        self.model2 = model2
+        self.models = torch.nn.ModuleList(models)
 
     def forward(self, batched_data):
-        out1 = self.model1(batched_data)  
-        out2 = self.model2(batched_data)  
-        out = (out1 + out2) / 2
+        out = [model(batched_data) for model in self.models]
+        out = sum(out)/len(self.models) 
         return out
 
 class GINEConv(MessagePassing):
