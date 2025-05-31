@@ -1,15 +1,11 @@
-python==3.11.0rc2
+# Requires python>=3.11.0rc2
+# logging==0.5.1.2 # In the python standard library
+# json==2.0.9      # In the python standard library
 torch==2.5.1+cu121
 numpy==2.2.5
 torch_geometric==2.6.1
 pandas==2.2.3
 matplotlib==3.10.1
-logging==0.5.1.2
 tqdm==4.67.1
-sklearn==1.6.1
-json==2.0.9
+scikit-learn==1.6.1
 networkx==3.4.2
-
-=== Our libraries ===
-kaggle_models
-conv
