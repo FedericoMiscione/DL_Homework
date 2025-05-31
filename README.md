@@ -70,6 +70,8 @@ Fine tuning different hyperparameters of the provided models. In particular, the
 - residual=True
 - graph_pooling='attention'
 
+On the dataset B has been used also a GINEConv_Virtual-based model with same parameters used in the non-virtual version.
+
 ### Ensemble
 
 The ensemble has been implemented as a simple wrapper that averages the summed output of the trained models. Since it is a simple wrapper it has not been necessary to train it.
@@ -77,7 +79,7 @@ The ensemble improved the generalization power, and so also the performance, obt
 
 In particular, the ensembles are composed by:
 - 2 GIN-based and 1 GINEConv-based models trained with different weight decay (model_A_best_1 on 1e-10 and model_best_A_2 on 1e-4) on the dataset A;
-- 1 GIN-based model and 1 GINEConv-based model on the dataset B.
+- 1 GIN-based model, 1 GINEConv-based model and GINEConv_Virtual-based on the dataset B.
 - 1 GIN-based model and 1 GINEConv-based model on the dataset C.
 - 1 GIN-based model and 1 GINEConv-based model on the dataset D.
 
